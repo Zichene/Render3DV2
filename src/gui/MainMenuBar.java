@@ -1,5 +1,7 @@
 package gui;
 
+import javafx.geometry.Point3D;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -33,24 +35,29 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         m1item3.setToolTipText("Move relative to camera, rather than world coordinates.");
         m1item3.addActionListener(this);
 
+        JMenuItem m1item4 = new JMenuItem("Show time to render info");
+        m1item4.addActionListener(this);
+
+        JMenuItem m1item5 = new JMenuItem("Reset camera");
+        m1item5.setToolTipText("Resets camera to (0,0,0) facing in -z direction.");
+        m1item5.addActionListener(this);
+
         m1.add(m1item1);
         m1.add(m1item2);
         m1.add(m1item3);
+        m1.add(m1item4);
+        m1.add(m1item5);
 
         JMenu m2 = new JMenu("Open");
 
         JMenuItem m2item1 = new JMenuItem("Open new .obj file");
         m2item1.addActionListener(this);
 
-        JMenuItem m2item2 = new JMenuItem("Open cow.obj");
+        JMenuItem m2item2 = new JMenuItem("Open sample .obj files");
         m2item2.addActionListener(this);
-
-        JMenuItem m2item3 = new JMenuItem("Open teapot.obj");
-        m2item3.addActionListener(this);
 
         m2.add(m2item1);
         m2.add(m2item2);
-        m2.add(m2item3);
 
         // adding all menus to menu bar
         this.add(m1);
@@ -70,16 +77,22 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
             case "Toggle move relative to camera":
                 f.consoleWrite("[System] Toggled move relative to cam: " + f.toggleMoveRelativeToCam() + "\n");
                 break;
+            case "Show time to render info":
+                f.consoleWrite("[System] Show time to render info: " + f.toggleTimeInfo() + "\n");
+                break;
+            case "Reset camera":
+                f.consoleWrite("[System] Reset camera. \n");
+                f.getCam().setPos(new Point3D(0,0,0));
+                f.getCam().recenterTo(new Point3D(0,0,-1));
+                f.update();
+                break;
+
             case "Open new .obj file":
-                f.loadObject();
+                f.loadObject(false);
                 break;
 
-            case "Open cow.obj":
-                f.loadCustomObject(new File("src/resources/objs/cow-nonormals.obj"));
-                break;
-
-            case "Open teapot.obj":
-                f.loadCustomObject(new File("src/resources/objs/teapot.obj"));
+            case "Open sample .obj files":
+                f.loadObject(true);
                 break;
         }
     }

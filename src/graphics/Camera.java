@@ -28,7 +28,7 @@ public class Camera {
     public Point3D up;
 
     public double nearClipPlane = 1;
-    public double farClipPlane = 100;
+    public double farClipPlane = 250;
 
     // After projecting points, check if they lie in the canvas_w and canvas_h
     public final int CANVAS_W = 5;
@@ -117,7 +117,15 @@ public class Camera {
      */
     public void recenterTo(Object3D obj) {
         // find unit vector between obj.pos and cam.pos
-        Point3D objToCam = this.camPos.subtract(obj.position);
+        recenterTo(obj.position);
+    }
+
+    public void recenterTo(Point3D position) {
+        // if position = camPos then we do nothing
+        if (position.equals(camPos)) {
+            return;
+        }
+        Point3D objToCam = this.camPos.subtract(position);
         forward = objToCam.normalize(); // change direction of forward here
 
         // change cam space unit vectors accordingly

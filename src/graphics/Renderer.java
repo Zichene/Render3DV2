@@ -41,8 +41,9 @@ public class Renderer {
         Point[] result = new Point[points.length];
         for (int i = 0; i < points.length; i++) {
             result[i] = convertToScreenCoordinates(points[i], screenWidth, screenHeight);
-            if (result[i] == null && DEBUG) {
-                System.out.println("Point " + points[i] + " is not visible");
+            // want to break immediately when we find a null point, meaning whole shape will not be displayed
+            if (result[i] == null) {
+                return null;
             }
         }
         return result;

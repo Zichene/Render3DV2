@@ -1,11 +1,13 @@
 package graphics;
 
+import gui.MainFrame;
 import javafx.geometry.Point3D;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.lang.reflect.Array;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,14 +79,20 @@ public class GraphicsPanel extends JPanel {
      * @return Boolean indicating whether the shape is fully visible to camera
      */
     public boolean initShape(Point3D[] points, Color color, boolean isFilled) {
-     //   System.out.println(Arrays.toString(renderer.convertToScreenCoordinates(points, SCREEN_WIDTH, SCREEN_WIDTH)));
-        shapes.add(new ColoredShape(renderer.convertToScreenCoordinates(points, SCREEN_WIDTH, SCREEN_HEIGHT), color, isFilled));
-        return isFullyVisible();
+        Point[] points2D = renderer.convertToScreenCoordinates(points, SCREEN_WIDTH, SCREEN_HEIGHT);
+        if (!(points2D == null)) {
+                // only add if all points are visible
+                shapes.add(new ColoredShape(points2D, color, isFilled));
+                return true;
+        } else {
+            return false;
+        }
+        // return isFullyVisible() induces alot more lag.
     }
 
     /**
      * Checks if a shape is fully visible to the camera. Goes through the shapes arraylist
-     * and checks if all of them are fully visible.
+     * and checks if all of them are fully visible. TODO: This adds alot of lag to the rendering.
      * @return
      */
     public boolean isFullyVisible() {
@@ -104,14 +112,6 @@ public class GraphicsPanel extends JPanel {
      */
     public void addObject(Object3D obj) {
         objects.add(obj);
-    }
-
-    /**
-     * Adding multiple objs at once
-     * @param objs
-     */
-    public void addObject(ArrayList<Object3D> objs) {
-        objects.addAll(objs);
     }
 
     /**
@@ -140,21 +140,30 @@ public class GraphicsPanel extends JPanel {
 
     }
 
-    private void renderSimple(JTextPane tp) {
+    private void renderSimple(MainFrame f) {
+        long t1 = System.currentTimeMillis();
         for (Object3D obj : objects) {
             obj.initObj(this);
             // THIS CODE MAKES IT LAG when objs are not visible to cam
        //     if (!obj.initObj(this)) {
        //         tp.setText(tp.getText() + "\n [SYSTEM] " + obj + " is not fully visible to camera.");
        //     }
+            long t2 = System.currentTimeMillis();
+            if (obj.faces.size() != 0 && f.showTimeInfo()) {
+                f.consoleWrite("[System] Time taken to render " + obj.faces.size() + " polygons :" + (t2-t1) + " ms.\n");
+                double tpo = (t2-t1)/(double)(obj.faces.size());
+                tpo = Math.round(tpo * 10000.0)/10000.0;
+                f.consoleWrite("[System] Average render time per polygon: " +  tpo + " ms/obj.\n");
+            }
         }
+
     }
 
-    public void updatePanel(JTextPane tp) {
+    public void updatePanel(MainFrame f) {
         clearShapes();
         repaint();
        // render(tp);
-        renderSimple(tp);
+        renderSimple(f);
     }
 
     public void paintComponent(Graphics g) {

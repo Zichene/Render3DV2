@@ -5,13 +5,13 @@ import javafx.geometry.Point3D;
 
 import java.awt.*;
 
-public class Triangle extends Object3D{
+public class Triangle extends Polygon3D{
 
     Point3D[] points;
 
-    public Triangle(Point3D[] points) {
-        // position is centroid of triangle
-        super(new Point3D(0,0,0));
+    public Triangle(Point3D position, Point3D[] points) {
+        // default position of triangle 0,0,0
+        super(position, points);
         if (points.length != 3) {
             throw new IllegalArgumentException("Need 3 points for Triangle constructor");
         }
@@ -21,7 +21,7 @@ public class Triangle extends Object3D{
     @Override
     public boolean initObj(GraphicsPanel g) {
         Color color = new Color(0, 100, 0, 60);
-        return g.initShape(points, color, true);
+        return g.initShape(points, color, false);
     }
 
     public Point3D findCentroid(Point3D[] pts) {

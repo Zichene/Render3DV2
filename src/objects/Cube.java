@@ -4,20 +4,24 @@ import graphics.GraphicsPanel;
 import javafx.geometry.Point3D;
 import objects.Object3D;
 
-import java.awt.Color;
-public class Cube extends Object3D {
+import java.awt.*;
+
+public class Cube {
 
     public Point3D[] points;
     public double size;
     public Color color;
 
+    public Point3D center;
+
     public boolean isFilled;
 
     public Cube(double size, Point3D center, Color color, boolean isFilled) {
-        super(center);
+
         this.size = size;
         this.color = color;
         this.isFilled = isFilled;
+        this.center = center;
 
         if (size <= 0) {
             throw new IllegalArgumentException("Cannot create cube with 0 or less size");
@@ -63,10 +67,10 @@ public class Cube extends Object3D {
     }
 
     public Point3D getCenter() {
-        return position;
+        return center;
     }
 
-    public Object3D initObj(double size, Point3D center, Color color, boolean filled, GraphicsPanel g) {
+    public Cube initObj(double size, Point3D center, Color color, boolean filled, GraphicsPanel g) {
         Cube cube = new Cube(size, center, color, true);
 
         // init cube
@@ -93,7 +97,7 @@ public class Cube extends Object3D {
      * @param position
      */
     public void moveTo(Point3D position) {
-        this.position = position;
+        this.center = position;
         Cube newCube = new Cube(size, position, color, isFilled);
         points = newCube.points;
     }

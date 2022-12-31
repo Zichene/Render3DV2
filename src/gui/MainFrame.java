@@ -7,6 +7,7 @@ import javafx.geometry.Point3D;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -47,6 +48,8 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
     private boolean MOVE_RELATIVE_TO_CAM = true;
 
     private boolean AUTO_RECENTER = true;
+
+    private boolean SHOW_TIME_INFO = true;
 
     /**
      * Constructor, creates a window (JFrame) with a title. The size of the window is set to SCREEN_WIDTH * SCREEN_HEIGHT.
@@ -149,22 +152,10 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
     }
 
     /**
-     * Add multiple objs to be displayed
-     * @param objs
-     */
-    public void addDisplayedObj(ArrayList<Triangle> objs) {
-        for (Object3D obj : objs) {
-            panel.addObject(obj);
-            cpanel.addObject(obj);
-        }
-        update();
-    }
-
-    /**
      * This method is called whenever we move the object or the camera to update the rendered image.
      */
     public void update() {
-        panel.updatePanel(textPane);
+        panel.updatePanel(this);
         cpanel.updatePanel();
         if (DEBUG) {
             printCamPos();
@@ -203,12 +194,19 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
         return AUTO_RECENTER;
     }
 
+    public boolean toggleTimeInfo() {
+        SHOW_TIME_INFO = !SHOW_TIME_INFO;
+        return SHOW_TIME_INFO;
+    }
+
     /**
      * Loads an object (.obj file) on the screen using JFileChooser
      */
-    public void loadObject() {
+    public void loadObject(boolean preload) {
         JFileChooser jfc = new JFileChooser();
-
+        if (preload) {
+            jfc.setCurrentDirectory(new File("src/resources/objs"));
+        }
         switch (jfc.showOpenDialog(this)) {
             case JFileChooser.APPROVE_OPTION:
                 File file = new File(jfc.getSelectedFile().getAbsolutePath());
@@ -227,7 +225,7 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
             consoleWrite("[System] No file found / invalid file type (.obj required).\n");
             throw new RuntimeException(e);
         }
-        this.addDisplayedObj(objFileReader.getTris());
+        this.addDisplayedObj(objFileReader.getObject());
         consoleWrite("[System] Successfully imported " + file.getName() + "\n");
     }
 
@@ -338,6 +336,10 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
    //     updateDisplayedObj();
         update();
         consoleWrite("[System] Camera recentered to" + panel.getObjects().get(0) + "\n");
+    }
+
+    public boolean showTimeInfo() {
+        return SHOW_TIME_INFO;
     }
 
     @Override
