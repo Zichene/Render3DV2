@@ -129,11 +129,20 @@ public class Camera {
         forward = objToCam.normalize(); // change direction of forward here
 
         // change cam space unit vectors accordingly
-
         Point3D temp = new Point3D(0,1,0);
 
-        right = temp.crossProduct(forward);
-        up = forward.crossProduct(right);
+        if (temp.angle(forward) != 0) {
+            right = temp.crossProduct(forward);
+            up = forward.crossProduct(right);
+        } else {  // this takes care of case when temp is parallel to forward
+            if (forward.equals(new Point3D(0,1,0))) {
+                right = new Point3D(1,0,0);
+                up = new Point3D(0,0,1);
+            } else if (forward.equals(new Point3D(0,-1,0))) {
+                right = new Point3D(1,0,0);
+                up = new Point3D(0,0,-1);
+            }
+        }
 
         // not sure about these changes
         forward = forward.multiply(-1);

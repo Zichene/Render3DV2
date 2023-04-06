@@ -4,21 +4,14 @@ import graphics.Camera;
 import graphics.CameraPanel;
 import graphics.GraphicsPanel;
 import javafx.geometry.Point3D;
-
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-
 import objects.*;
 
 /**
@@ -59,9 +52,13 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
     public MainFrame(String title) {
 
         super(title);
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // change all fonts to custom font
-        changeAllFonts();
-
+    //    changeAllFonts();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         setBackground(Color.LIGHT_GRAY);
@@ -175,7 +172,6 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
     }
 
     public void consoleWrite(String text) {
-        textPane.setForeground(Color.RED);
         textPane.setText(textPane.getText() + " " + text);
     }
 
@@ -220,12 +216,13 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
         clearAll();
         ObjFileReader objFileReader = null;
         try {
-            objFileReader = new ObjFileReader(file, 2500, 2400);
+            objFileReader = new ObjFileReader(file);
         } catch (FileNotFoundException e) {
             consoleWrite("[System] No file found / invalid file type (.obj required).\n");
             throw new RuntimeException(e);
         }
-        this.addDisplayedObj(objFileReader.getObject());
+        Object3D obj = objFileReader.getObject();
+        this.addDisplayedObj(obj);
         consoleWrite("[System] Successfully imported " + file.getName() + "\n");
     }
 
@@ -252,6 +249,40 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
                 "the shift key). Click the mouse to recenter camera to the object." + "\n");
         consoleWrite("[System] Initial camera position: " +
                 "x = " + x + ", y = " + y + ", z = " + z + "\n");
+    }
+
+    /**
+     * Changes the color of all the Object3Ds in the GPanel list, using
+     * JColorPicker
+     */
+    public void changeColor() {
+        if (panel.getObjects().size() == 0) {
+            consoleWrite("[System] No objects ");
+            return;
+        }
+        Color initialcolor = new Color(100, 100, 100);
+        Color color = JColorChooser.showDialog(this,"Select a color", initialcolor);
+        // for now we make color opaque
+        color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 60);
+        for (Object3D obj : panel.getObjects()) {
+            obj.setColor(color);
+        }
+        consoleWrite("[System] Color of objects has been updated.\n");
+        update();
+    }
+
+    public Timer startRotationAnimation(Timer timer) {
+        timer = new Timer(50, new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (panel.getObjects().size() != 0) {
+                    panel.getObjects().get(0).rotateObj(5);
+                    update();
+                }
+            }
+        });
+        timer.start();
+        return timer;
     }
 
 
@@ -364,7 +395,7 @@ public class MainFrame extends JFrame implements KeyListener, MouseListener {
     
     private void changeAllFonts() {
         try {
-            Font f = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("src/resources/fonts/Aldo semi-bold0.12.ttf"));
+            Font f = Font.createFont(Font.TRUETYPE_FONT, new FileInputStream("src/resources/fonts/arial.ttf"));
             f = f.deriveFont(15.0F);
             UIManager.put("Button.font", f);
             UIManager.put("ToggleButton.font", f);

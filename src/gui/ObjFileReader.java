@@ -3,29 +3,29 @@ package gui;
 import javafx.geometry.Point3D;
 import objects.*;
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ObjFileReader {
 
     ArrayList<Point3D> vertices;
-
     ArrayList<Polygon3D> faces;
-
     double scaleUpFactor = 1;
 
     public Object3D obj;
 
     // Assume all faces are triangles
-    public ObjFileReader(File file, int numOfVertices, int numOfFaces) throws FileNotFoundException {
+    public ObjFileReader(File file) throws FileNotFoundException, IndexOutOfBoundsException {
         if (!file.getName().endsWith(".obj")) {
             throw new FileNotFoundException("Invalid file type (required .obj)");
         }
         Scanner scanner = new Scanner(file);
-        vertices = new ArrayList<>(numOfVertices);
-        faces = new ArrayList<>(numOfFaces);
+        vertices = new ArrayList<>();
+        faces = new ArrayList<>();
         while (scanner.hasNext()) {
             String nextLine = scanner.nextLine();
             if (nextLine.startsWith("v ")) {
@@ -41,6 +41,8 @@ public class ObjFileReader {
                 // faces
                 String[] args = nextLine.split(" ");
                 args = removeSpaces(args);
+                // in .obj files faces may be formatted as 1/1/1, 2/2/2, 3/3/3, 4/4/4, etc.
+                removeSlashes(args);
                 if (args.length == 4) {
                     // triangles
                     int p1 = Integer.parseInt(args[1]);
@@ -57,6 +59,14 @@ public class ObjFileReader {
                     faces.add(new PolyG(new Point3D(0,0,0), pts));
                 }
             }
+        }
+    }
+
+    private void removeSlashes(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            String[] split = args[i].split("/");
+            // the zeroth index are the face coordinates
+            args[i] = split[0];
         }
     }
 
@@ -79,16 +89,8 @@ public class ObjFileReader {
     return res;
     }
 
-    public ArrayList<Point3D> getVertices() {
-        return vertices;
-    }
-
-    public ArrayList<Polygon3D> getFaces() {
-        return faces;
-    }
-
     public Object3D getObject() {
-        return new CustomObject(faces, vertices, new Point3D(0,0,0));
+        return new CustomObject(faces.toArray(new Polygon3D[0]), vertices.toArray(new Point3D[0]), new Point3D(0,0,0));
     }
 
 }

@@ -18,11 +18,6 @@ public class Triangle extends Polygon3D{
         this.points = points;
         this.position = findCentroid(points);
     }
-    @Override
-    public boolean initObj(GraphicsPanel g) {
-        Color color = new Color(0, 100, 0, 60);
-        return g.initShape(points, color, false);
-    }
 
     public Point3D findCentroid(Point3D[] pts) {
         if (pts.length != 3) {

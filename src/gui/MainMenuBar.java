@@ -15,6 +15,8 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
 
     MainFrame f;
 
+    Timer animationTimer;
+
     public MainMenuBar(MainFrame f) {
         super();
         this.f = f;
@@ -59,9 +61,28 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
         m2.add(m2item1);
         m2.add(m2item2);
 
+        JMenu m3 = new JMenu("Object properties");
+
+        JMenuItem m3item1 = new JMenuItem("Change color");
+        m3item1.addActionListener(this);
+
+        JMenuItem m3item2 = new JMenuItem("Change location");
+        m3item2.addActionListener(this);
+
+        JMenuItem m3item3 = new JMenuItem("Rotate object");
+        m3item3.addActionListener(this);
+
+        JMenuItem m3item4 = new JMenuItem("Stop rotation");
+        m3item4.addActionListener(this);
+
+        m3.add(m3item1);
+        m3.add(m3item2);
+        m3.add(m3item3);
+        m3.add(m3item4);
         // adding all menus to menu bar
         this.add(m1);
         this.add(m2);
+        this.add(m3);
     }
 
     @Override
@@ -93,6 +114,24 @@ public class MainMenuBar extends JMenuBar implements ActionListener {
 
             case "Open sample .obj files":
                 f.loadObject(true);
+                break;
+
+            case "Change color":
+                f.changeColor();
+                break;
+
+            case "Change location":
+                f.getGPanel().getObjects().get(0).moveObj(new Point3D(100,100,100));
+                f.update();
+                break;
+
+            case "Rotate object":
+                if (animationTimer == null || (animationTimer != null && !animationTimer.isRunning()))
+                    animationTimer = f.startRotationAnimation(animationTimer);
+                break;
+
+            case "Stop rotation":
+                animationTimer.stop();
                 break;
         }
     }

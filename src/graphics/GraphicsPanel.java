@@ -2,16 +2,14 @@ package graphics;
 
 import gui.MainFrame;
 import javafx.geometry.Point3D;
-
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.lang.reflect.Array;
-import java.sql.SQLOutput;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.TimerTask;
 
 import objects.*;
 
@@ -114,32 +112,6 @@ public class GraphicsPanel extends JPanel {
         objects.add(obj);
     }
 
-    /**
-     * Method renders all the objects on the screen, in the order such that the
-     * closest points to the camera are rendered first. To be used when solid objects
-     * are involved.
-     */
-    private void render(JTextPane tp) {
-        // sort all objs in objects arraylist
-        HashMap<Double, Object3D> map = new HashMap<Double, Object3D>();
-        for (Object3D obj : objects) {
-            double distance = obj.position.distance(renderer.getCam().getCamPos());
-            map.put(distance, obj);
-        }
-
-        Object[] arr = map.keySet().toArray();
-        Arrays.sort(arr);
-
-        // closest objects are rendered last!
-        for (int i = arr.length-1; i >= 0; i--) {
-            if (!map.get(arr[i]).initObj(this)) {
-                tp.setText(tp.getText() + "\n [SYSTEM] " + map.get(arr[i]) + " is not fully visible to camera.");
-            }
-        }
-
-
-    }
-
     private void renderSimple(MainFrame f) {
         long t1 = System.currentTimeMillis();
         for (Object3D obj : objects) {
@@ -149,14 +121,13 @@ public class GraphicsPanel extends JPanel {
        //         tp.setText(tp.getText() + "\n [SYSTEM] " + obj + " is not fully visible to camera.");
        //     }
             long t2 = System.currentTimeMillis();
-            if (obj.faces.size() != 0 && f.showTimeInfo()) {
-                f.consoleWrite("[System] Time taken to render " + obj.faces.size() + " polygons :" + (t2-t1) + " ms.\n");
-                double tpo = (t2-t1)/(double)(obj.faces.size());
+            if (obj.faces.length != 0 && f.showTimeInfo()) {
+                f.consoleWrite("[System] Time taken to render " + obj.faces.length + " polygons :" + (t2-t1) + " ms.\n");
+                double tpo = (t2-t1)/(double)(obj.faces.length);
                 tpo = Math.round(tpo * 10000.0)/10000.0;
                 f.consoleWrite("[System] Average render time per polygon: " +  tpo + " ms/obj.\n");
             }
         }
-
     }
 
     public void updatePanel(MainFrame f) {
@@ -205,6 +176,7 @@ public class GraphicsPanel extends JPanel {
     public void removeObjects() {
         objects = new ArrayList<>();
     }
+
 
     /**
      * Class representing a colored shape to be displayed on screen.
